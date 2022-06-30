@@ -1,124 +1,157 @@
-import React, { useEffect, useState } from "react"
-import { Button } from "../button"
-import { FormItem } from "../form-item"
+import React, { useEffect, useState } from "react";
+import { Button } from "../button";
+import { FormItem } from "../form-item";
 
 export function DataGrid() {
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [sayi, setSayi] = useState(0);
 
-  const [items, setItems] = useState([])
-  const [loading, setLoading] = useState(false)
-
-  const [todo, setTodo] = useState(null)
+  const [todo, setTodo] = useState(null);
 
   useEffect(() => {
-    loadData()
-  }, [])
+    loadData();
+  }, []);
 
   const loadData = () => {
-    setLoading(true)
+    setLoading(true);
     fetch("https://jsonplaceholder.typicode.com/todos")
-      .then(x => x.json())
-      .then(response => {
-        setItems(response)
-        setLoading(false)
-    }).catch(e => {
-      console.log(e)
-      setLoading(false)
-    })
-  }
+      .then((x) => x.json())
+      .then((response) => {
+        setItems(response);
+        setLoading(false);
+      })
+      .catch((e) => {
+        console.log(e);
+        setLoading(false);
+      });
+  };
 
-  const renderBody = () => {
+  // ###
+
+  const renderBody = (e) => {
     return (
       <React.Fragment>
-        {items.sort((a, b) => b.id - a.id).map((item, i) => {
-          return (
-            <tr key={i}>
-              <th scope="row" >{item.id}</th>
-              <td>{item.title}</td>
-              <td>{item.completed ? "Tamamlandı" : "Yapılacak"}</td>
-              <td>
-                <Button className="btn btn-xs btn-danger" onClick={() => onRemove(item.id)}>Sil</Button>
-                <Button className="btn btn-xs btn-warning" onClick={() => onEdit(item)}>Düzenle</Button>
-              </td>
-            </tr>
-          )
-        })}
+        {items
+          .sort((a, b) => b.id - a.id)
+          .map((item, i) => {
+            return (
+              <tr key={i}>
+                <th scope="row">{item.id}</th>
+                <td>{item.title}</td>
+                <td>{item.completed ? "Tamamlandı" : "Yapılacak"}</td>
+                <td>
+                  <Button
+                    className="btn btn-xs btn-danger"
+                    onClick={() => onRemove(item.id)}
+                  >
+                    Sil
+                  </Button>
+                  <Button
+                    className="btn btn-xs btn-warning"
+                    onClick={() => onEdit(item)}
+                  >
+                    Düzenle
+                  </Button>
+                </td>
+              </tr>
+            );
+          })
+          // istediğin kadar ekrana "item" getirebilirsin
+          .splice(0, e == 0 ? 200 : e)}
       </React.Fragment>
-    )
-  }
+    );
+  };
 
   const renderTable = () => {
+    // let plus = 1;
     return (
-    <>
-      <Button onClick={onAdd}>Ekle</Button>
-      <table className="table">
-        <thead>
-          <tr>
-            <th scope="col">#</th>
-            <th scope="col">Başlık</th>
-            <th scope="col">Durum</th>
-            <th scope="col">Aksiyonlar</th>
-          </tr>
-        </thead>
-        <tbody>
-          {renderBody()}
-        </tbody>
-      </table>
-    </>
-    )
-  }
+      <>
+        <Button onClick={onAdd}>Ekle</Button>
+
+        {/* splice metodunun inputu */}
+        <label className="m-5 text-success ">
+          Listelenmesini İstediğin Miktar :
+          <input
+            type="number"
+            className="m-2"
+            onChange={(e) => {
+              setSayi(Number(e.target.value));
+            }}
+            value={
+              sayi < 0 || sayi > 250
+                ? <h1>HOOOPP !!! Hemşehrim Nereye gidiyorsun</h1>
+                : sayi
+            }
+          />
+        </label>
+
+        <table className="table">
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Başlık</th>
+              <th scope="col">Durum</th>
+              <th scope="col">Aksiyonlar</th>
+            </tr>
+          </thead>
+          <tbody>{renderBody(sayi)}</tbody>
+        </table>
+      </>
+    );
+  };
 
   const saveChanges = () => {
-
-    // insert 
+    // insert
     if (todo && todo.id === -1) {
-      todo.id = Math.max(...items.map(item => item.id)) + 1;
-      setItems(items => {
-        items.push(todo)
-        return [...items]
-      })
+      todo.id = Math.max(...items.map((item) => item.id)) + 1;
+      setItems((items) => {
+        items.push(todo);
+        return [...items];
+      });
 
-      alert("Ekleme işlemi başarıyla gerçekleşti.")
-      setTodo(null)
-      return
+      alert("Ekleme işlemi başarıyla gerçekleşti.");
+      setTodo(null);
+      return;
     }
     // update
-    const index = items.findIndex(item => item.id == todo.id)
-    setItems(items => {
-      items[index] = todo
-      return [...items]
-    })
-    setTodo(null)
-  }
+    const index = items.findIndex((item) => item.id == todo.id);
+    setItems((items) => {
+      items[index] = todo;
+      return [...items];
+    });
+    setTodo(null);
+  };
 
   const onAdd = () => {
     setTodo({
       id: -1,
       title: "",
-      completed: false
-    })
-  }
+      completed: false,
+    });
+  };
 
   const onRemove = (id) => {
-    const status = window.confirm("Silmek istediğinize emin misiniz?")
+    const status = window.confirm("Silmek istediğinize emin misiniz?");
 
     if (!status) {
-      return
+      return;
     }
-    const index = items.findIndex(item => item.id == id)
-    
-    setItems(items => {
-      items.splice(index, 1)
-      return [...items]
-    })
-  }
+    const index = items.findIndex((item) => item.id == id);
+
+    setItems((items) => {
+      items.splice(index, 1);
+      return [...items];
+    });
+  };
 
   const onEdit = (todo) => {
-    setTodo(todo)
-  }
-  
+    setTodo(todo);
+  };
+
   const cancel = () => {
-    setTodo(null)
-  }
+    setTodo(null);
+  };
 
   const renderEditForm = () => {
     return (
@@ -126,28 +159,31 @@ export function DataGrid() {
         <FormItem
           title="Title"
           value={todo.title}
-          onChange={e => setTodo(todos => {
-            return {...todos, title: e.target.value}
-          })}
+          onChange={(e) =>
+            setTodo((todos) => {
+              return { ...todos, title: e.target.value };
+            })
+          }
         />
         <FormItem
           component="checkbox"
           title="Completed"
           value={todo.completed}
-          onChange={e => setTodo(todos => {
-            return {...todos, completed: e.target.checked}
-          })}
+          onChange={(e) =>
+            setTodo((todos) => {
+              return { ...todos, completed: e.target.checked };
+            })
+          }
         />
         <Button onClick={saveChanges}>Kaydet</Button>
-        <Button className="btn btn-default" onClick={cancel}>Vazgeç</Button>
+        <Button className="btn btn-default" onClick={cancel}>
+          Vazgeç
+        </Button>
       </>
-    )
-  }
-  
+    );
+  };
+
   return (
-    <>
-      { loading ? "Yükleniyor...." : (todo ? renderEditForm() : renderTable())}
-    
-    </>
-  )
+    <>{loading ? "Yükleniyor...." : todo ? renderEditForm() : renderTable()}</>
+  );
 }
