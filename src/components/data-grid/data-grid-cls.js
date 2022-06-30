@@ -8,7 +8,8 @@ export class DataGridClsComponent extends React.Component {
     items: [],
     todo: null,
     sayi: 0,
-    hata:"Hatali Islem"
+    hata: "Hatali Islem",
+    order: "ASC",
   };
 
   componentDidMount() {
@@ -31,7 +32,7 @@ export class DataGridClsComponent extends React.Component {
     return (
       <React.Fragment>
         {this.state.items
-          .sort((a, b) => b.id - a.id)
+          // .sort((a, b) => b.id - a.id)
           .map((item, i) => {
             return (
               <tr key={i}>
@@ -62,30 +63,67 @@ export class DataGridClsComponent extends React.Component {
   };
 
   renderTable = () => {
+    let HOPP = " HOOOPP !!! Hemşehrim Nereye gidiyorsun?";
+
+      /* Sorting Function */
+  const sorting = (col) => {
+    if (this.order === "ASC") {
+      const sorted = [...this.props.items].sort((a, b) => (a[col] > b[col] ? 1 : -1));
+      this.setState({ order: "DESC" });
+      this.setItems(sorted);
+    }
+    if (this.order === "DESC") {
+      const sorted = [...this.props.items].sort((a, b) => (a[col] > b[col] ? -1 : 1));
+      this.setState({ order: "ASC" });
+      this.setItems(sorted);
+    }
+  };
     return (
       <>
+        <div>
+          <ul>
+            <br />
+            <li>
+              {" "}
+              Başlıkların Üstüne Tıklayarak Ürünleri Ters Döndürebilirsiniz.
+            </li>
+            <li>
+              {" "}
+              İstediğiniz Miktarda Ürünü{" "}
+              <strong>"Listelenmeni İstediğiniz Miktar"</strong> Kısmında
+              Görebilirsiniz.
+            </li>
+            <li>Eksi Değer ve Harf Giremezsiniz.</li>
+          </ul>
+        </div>
+
         <Button className="btn btn-primary btn-xs m-4" onClick={this.onAdd}>
           Ekle
         </Button>
 
         {/* splice metodunun inputu */}
-        <label className="m-5 text-success ">Listelenmesini İstediğin Miktar :
-        <input         
-          type="number"
-          className="m-2"
-          onChange={(e) => {
-            this.setState({ sayi: e.target.value })
-          }
-          }
-          value={this.state.sayi<0 || this.state.sayi>250 ? this.state.hata : this.state.sayi}
-          /></label>
+        <label className="m-5 text-success ">
+          Listelenmesini İstediğin Miktar :
+          <input
+            type="number"
+            className="m-2"
+            onChange={(e) => {
+              this.setState({ sayi: e.target.value });
+            }}
+            value={
+              this.state.sayi < 0 || this.state.sayi > 250
+                ? this.state.hata || HOPP
+                : this.state.sayi
+            }
+          />
+        </label>
 
         <table className="table">
-          <thead>
+          <thead className="headTable">
             <tr>
               <th scope="col">#</th>
               <th scope="col">Başlık</th>
-              <th scope="col">Durum</th>
+              <th onClick={sorting()} scope="col">Durum</th>
               <th scope="col">Aksiyonlar</th>
             </tr>
           </thead>
@@ -94,6 +132,12 @@ export class DataGridClsComponent extends React.Component {
       </>
     );
   };
+
+  // ##############
+
+
+
+  // ##############
 
   saveChanges = () => {
     // insert
@@ -105,6 +149,7 @@ export class DataGridClsComponent extends React.Component {
       alert("Ekleme işlemi başarıyla gerçekleşti.");
       return;
     }
+
     // update
     const index = items.findIndex((item) => item.id === todo.id);
     items[index] = todo;

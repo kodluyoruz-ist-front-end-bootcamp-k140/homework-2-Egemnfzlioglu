@@ -5,9 +5,10 @@ import { FormItem } from "../form-item";
 export function DataGrid() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [sayi, setSayi] = useState(0);
-
   const [todo, setTodo] = useState(null);
+
+  const [sayi, setSayi] = useState(0);
+  const [order, setOrder] = useState("ASC");
 
   useEffect(() => {
     loadData();
@@ -29,48 +30,68 @@ export function DataGrid() {
 
   // ###
 
+  function RenderBaslik(props) {
+    return (
+      <tr>
+        <th scope="row">{props.item.id}</th>
+        <td>{props.item.title}</td>
+        <td>{props.item.completed ? "Tamamlandı" : "Yapılacak"}</td>
+        <td>
+          <Button
+            className="btn btn-xs btn-danger"
+            onClick={() => onRemove(props.item.id)}
+          >
+            Sil
+          </Button>
+          <Button
+            className="btn btn-xs btn-warning"
+            onClick={() => onEdit(props.item)}
+          >
+            Düzenle
+          </Button>
+        </td>
+      </tr>
+    );
+  }
+
   const renderBody = (e) => {
     return (
       <React.Fragment>
         {items
-          .sort((a, b) => b.id - a.id)
+          // .sort((a, b) => b.id - a.id)
           .map((item, i) => {
-            return (
-              <tr key={i}>
-                <th scope="row">{item.id}</th>
-                <td>{item.title}</td>
-                <td>{item.completed ? "Tamamlandı" : "Yapılacak"}</td>
-                <td>
-                  <Button
-                    className="btn btn-xs btn-danger"
-                    onClick={() => onRemove(item.id)}
-                  >
-                    Sil
-                  </Button>
-                  <Button
-                    className="btn btn-xs btn-warning"
-                    onClick={() => onEdit(item)}
-                  >
-                    Düzenle
-                  </Button>
-                </td>
-              </tr>
-            );
+            return <RenderBaslik key={i} item={item}></RenderBaslik>;
           })
           // istediğin kadar ekrana "item" getirebilirsin
-          .splice(0, e == 0 ? 200 : e)}
+          .splice(0, e === 0 ? 200 : e)}
       </React.Fragment>
     );
   };
 
   const renderTable = () => {
-    // let plus = 1;
+    let HOPP = " HOOOPP !!! Hemşehrim Nereye gidiyorsun?";
     return (
       <>
-        <Button onClick={onAdd}>Ekle</Button>
+        <div>
+          <ul>
+            <br />
+            <li>
+              {" "}
+              Başlıkların Üstüne Tıklayarak Ürünleri Ters Döndürebilirsiniz.
+            </li>
+            <li>
+              {" "}
+              İstediğiniz Miktarda Ürünü{" "}
+              <strong>"Listelenmeni İstediğiniz Miktar"</strong> Kısmında
+              Görebilirsiniz.
+            </li>
+            <li>Eksi Değer ve Harf Giremezsiniz.</li>
+          </ul>
+        </div>
+        <Button className="btn btn-primary btn-xs m-4" onClick={onAdd}>Ekle</Button>
 
         {/* splice metodunun inputu */}
-        <label className="m-5 text-success ">
+        <label className="mx-5 text-success ">
           Listelenmesini İstediğin Miktar :
           <input
             type="number"
@@ -78,20 +99,22 @@ export function DataGrid() {
             onChange={(e) => {
               setSayi(Number(e.target.value));
             }}
-            value={
-              sayi < 0 || sayi > 250
-                ? <h1>HOOOPP !!! Hemşehrim Nereye gidiyorsun</h1>
-                : sayi
-            }
+            value={sayi < 0 || sayi > 250 ? <h1>{alert(HOPP)}</h1> : sayi}
           />
         </label>
 
         <table className="table">
-          <thead>
+          <thead className="headTable">
             <tr>
-              <th scope="col">#</th>
-              <th scope="col">Başlık</th>
-              <th scope="col">Durum</th>
+              <th onClick={() => sorting(items.id)} scope="col">
+                #
+              </th>
+              <th onClick={() => sorting(items.title)} scope="col">
+                Başlık
+              </th>
+              <th onClick={() => sorting(items.completed)} scope="col">
+                Durum
+              </th>
               <th scope="col">Aksiyonlar</th>
             </tr>
           </thead>
@@ -99,6 +122,19 @@ export function DataGrid() {
         </table>
       </>
     );
+  };
+
+  /* Sorting Function */
+  const sorting = (col) => {
+    if (order === "ASC") {
+      const sorted = [...items].sort((a, b) => (a[col] > b[col] ? 1 : -1));
+      setOrder("DESC");
+      setItems(sorted);
+    } else {
+      const sorted = [...items].sort((a, b) => (a[col] > b[col] ? -1 : 1));
+      setOrder("ASC");
+      setItems(sorted);
+    }
   };
 
   const saveChanges = () => {
@@ -115,7 +151,7 @@ export function DataGrid() {
       return;
     }
     // update
-    const index = items.findIndex((item) => item.id == todo.id);
+    const index = items.findIndex((item) => item.id === todo.id);
     setItems((items) => {
       items[index] = todo;
       return [...items];
@@ -137,7 +173,7 @@ export function DataGrid() {
     if (!status) {
       return;
     }
-    const index = items.findIndex((item) => item.id == id);
+    const index = items.findIndex((item) => item.id === id);
 
     setItems((items) => {
       items.splice(index, 1);

@@ -33,3 +33,9 @@
 .tabs {
   margin: 20px 0px;
 }
+.table {
+  margin: 20px;
+  cursor: pointer;
+}
+
+
