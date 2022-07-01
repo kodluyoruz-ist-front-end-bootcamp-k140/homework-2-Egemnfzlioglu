@@ -1,19 +1,27 @@
 import React, { useEffect, useState } from "react";
 import { Button } from "../button";
 import { FormItem } from "../form-item";
+import Pagination from "./pagination";
 
 export function DataGrid() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(false);
   const [todo, setTodo] = useState(null);
 
-  const [sayi, setSayi] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1); //aynısı
+  const [pageSize,setPageSize] = useState(25||50||75||100); //employessPerpage
 
   const [order, setOrder] = useState("ASC");
 
   useEffect(() => {
     loadData();
   }, []);
+
+  // ######  pageSize  ######
+  const pageLastSize = currentPage * pageSize;
+  const PageFirstSize = pageLastSize - pageSize;
+  const currentSize = items.slice(PageFirstSize, pageLastSize);
+  const totalPagesNum = Math.ceil(items.length / pageSize);
 
   const loadData = () => {
     setLoading(true);
@@ -58,22 +66,32 @@ export function DataGrid() {
   const renderBody = (e) => {
     return (
       <React.Fragment>
-        {items
-          // .sort((a, b) => b.id - a.id)
-          .map((item, i) => {
-            return <RenderBaslik key={i} item={item}></RenderBaslik>;
-          })
+        {
+          currentSize
+            // .sort((a, b) => b.id - a.id)
+            .map((item, i, sayi) => {
+              return (
+                <RenderBaslik key={i} item={item} sayi={sayi}></RenderBaslik>
+              );
+            })
           // istediğin kadar ekrana "item" getirebilirsin
-          .splice(0, e === 0 ? 200 : e )}
+          // .slice(0, e === 0 ? currentSize.length : e)
+        }
       </React.Fragment>
     );
   };
 
   const renderTable = () => {
-    let HOPP = " HOOOPP !!! Hemşehrim Nereye gidiyorsun?";
+    // let HOPP = " HOOOPP !!! Hemşehrim Nereye gidiyorsun?";
     return (
       <>
-        <div>
+        {/* 
+    //##############################################################################################//
+    //#################################### DENEMELER BASLANGICI#####################################//
+    //##############################################################################################// 
+      */}
+
+        {/* <div>
           <ul>
             <br />
             <li>
@@ -88,12 +106,9 @@ export function DataGrid() {
             </li>
             <li>Eksi Değer ve Harf Giremezsiniz.</li>
           </ul>
-        </div>
-        <Button className="btn btn-primary btn-xs m-4" onClick={onAdd}>
-          Ekle
-        </Button>
+        </div> */}
 
-        {/* splice metodunun inputu */}
+        {/* splice metodunun inputu
         <label className="mx-5 text-success ">
           Listelenmesini İstediğin Miktar :
           <input
@@ -102,26 +117,46 @@ export function DataGrid() {
             onChange={(e) => {
               setSayi(Number(e.currentTarget.value));
             }}
-            value={sayi < 0 || sayi > 250 ? <h1>{alert(HOPP)}</h1> : sayi}
+            value={
+              sayi < 0 || sayi > items.length ? <h1>{alert(HOPP)}</h1> : sayi
+            }
           />
-        </label>
+        </label> 
+       
+        ### 
+        <h4 style={{ display: "flex", justifyContent: "center" }}>
+          {sayi ? sayi : items.length} ürününü listelemek istiyorum.
+        </h4>
+         ###*/}
 
-        <table className="table  headTable">
+        {/* 
+          //##############################################################################################//
+          //####################################### DENEMELER SONU #######################################//
+          //##############################################################################################//
+        */}
+
+        <Button className="btn btn-primary btn-xs m-4" onClick={onAdd}>
+          Ekle
+        </Button>
+
+        <Pagination pages={totalPagesNum} setCurrentPage={setCurrentPage}  />
+
+        <table className="table table-striped headTable">
           <thead>
             <tr>
-              <th onClick={() => sortingID(items.id)} scope="col">
+              <th onClick={() => sortingID([...currentSize].id)} scope="col">
                 #
               </th>
-              <th onClick={() => sortingTitle(items.title)} scope="col">
+              <th onClick={() => sortingTitle([...currentSize].title)} scope="col">
                 Başlık
               </th>
-              <th onClick={() => sortingCompleted(items.completed)} scope="col">
+              <th onClick={() => sortingCompleted([...currentSize].completed)} scope="col">
                 Durum
               </th>
               <th scope="col">Aksiyonlar</th>
             </tr>
           </thead>
-          <tbody>{renderBody(sayi)}</tbody>
+          <tbody>{renderBody(200)}</tbody>
         </table>
       </>
     );
@@ -130,25 +165,35 @@ export function DataGrid() {
   //##############################################################################################//
   //######################################## SORTİNG START #######################################//
   //##############################################################################################//
+
   const sortingID = (col) => {
     if (order === "ASC") {
-      const sorted = [...items].sort((a, b) => (a.id <= b.id ? -1 : 1));
+      const sorted = [...currentSize].sort((a, b) => (a.id < b.id ? -1 : 1));
+
       setOrder("DESC");
       setItems(sorted);
+      setPageSize(200);
     } else {
-      const sorted = [...items].sort((a, b) => (a.id >= b.id ? -1 : 1));
+      const sorted = [...currentSize].sort((a, b) => (a.id > b.id ? -1 : 1));
+
       setOrder("ASC");
       setItems(sorted);
+      setPageSize(200);
+
     }
   };
 
   const sortingTitle = (col) => {
     if (order === "ASC") {
-      const sorted = [...items].sort((a, b) => (a.title < b.title ? -1 : 1));
+      const sorted = currentSize.sort((a, b) =>
+        a.title < b.title ? -1 : 1
+      );
       setOrder("DESC");
       setItems(sorted);
     } else {
-      const sorted = [...items].sort((a, b) => (a.title > b.title ? -1 : 1));
+      const sorted = currentSize.sort((a, b) =>
+        a.title > b.title ? -1 : 1
+      );
       setOrder("ASC");
       setItems(sorted);
     }
@@ -156,29 +201,32 @@ export function DataGrid() {
 
   const sortingCompleted = (col) => {
     if (order === "ASC") {
-      const sorted = [...items].sort((a, b) =>
+      const sorted = currentSize.sort((a, b) =>
         a.completed < b.completed ? -1 : 1
       );
       setOrder("DESC");
       setItems(sorted);
     } else {
-      const sorted = [...items].sort((a, b) =>
+      const sorted = currentSize.sort((a, b) =>
         a.completed > b.completed ? -1 : 1
       );
-      //a.completed.localeCompare(b.completed));
-      //[...items].sort((a, b) => (a[col] > b[col] ? -1 : 1));
       setOrder("ASC");
       setItems(sorted);
     }
   };
 
+  //##############################################################################################//
   //######################################## SORTİNG SONU ########################################//
+  //##############################################################################################//
+
+  //##############################################################################################//<<<<<<<<<<<<<<<
+  //###################################### PAGİNATİON START ######################################//
   //##############################################################################################//
 
   const saveChanges = () => {
     // insert
     if (todo && todo.id === -1) {
-      todo.id = Math.max(...items.map((item) => item.id)) + 1;
+      todo.id = Math.max({...currentSize}.map((item) => item.id)) + 1;
       setItems((items) => {
         items.push(todo);
         return [...items];
