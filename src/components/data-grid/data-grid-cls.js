@@ -8,12 +8,14 @@ export class DataGridClsComponent extends React.Component {
     items: [],
     todo: null,
     sayi: 0,
-    hata: "Hatali Islem",
+    hata: " HOOOPP !!! Hemşehrim Nereye gidiyorsun?",
     order: "ASC",
   };
 
   componentDidMount() {
     this.loadData();
+    this.renderTable();
+    this.sorting();
   }
 
   loadData = () => {
@@ -32,6 +34,8 @@ export class DataGridClsComponent extends React.Component {
     return (
       <React.Fragment>
         {this.state.items
+          .reverse()
+
           // .sort((a, b) => b.id - a.id)
           .map((item, i) => {
             return (
@@ -63,21 +67,6 @@ export class DataGridClsComponent extends React.Component {
   };
 
   renderTable = () => {
-    let HOPP = " HOOOPP !!! Hemşehrim Nereye gidiyorsun?";
-
-      /* Sorting Function */
-  const sorting = (col) => {
-    if (this.order === "ASC") {
-      const sorted = [...this.props.items].sort((a, b) => (a[col] > b[col] ? 1 : -1));
-      this.setState({ order: "DESC" });
-      this.setItems(sorted);
-    }
-    if (this.order === "DESC") {
-      const sorted = [...this.props.items].sort((a, b) => (a[col] > b[col] ? -1 : 1));
-      this.setState({ order: "ASC" });
-      this.setItems(sorted);
-    }
-  };
     return (
       <>
         <div>
@@ -86,6 +75,11 @@ export class DataGridClsComponent extends React.Component {
             <li>
               {" "}
               Başlıkların Üstüne Tıklayarak Ürünleri Ters Döndürebilirsiniz.
+              <sup>
+                 <strong>
+                   (GEÇİCİ SÜRELİĞİNE SERVİS DIŞI, KONTROLÜ YAPILACAKTIR.) 
+                </strong>
+              </sup>
             </li>
             <li>
               {" "}
@@ -112,30 +106,58 @@ export class DataGridClsComponent extends React.Component {
             }}
             value={
               this.state.sayi < 0 || this.state.sayi > 250
-                ? this.state.hata || HOPP
+                ? this.state.hata
                 : this.state.sayi
             }
           />
         </label>
 
-        <table className="table">
-          <thead className="headTable">
+        <table className="table table-striped">
+          <thead>
             <tr>
-              <th scope="col">#</th>
+              <th
+                // onClick={()=>console.log(this.sorting(this.items.id))}
+                scope="col"
+              >
+                #
+              </th>
               <th scope="col">Başlık</th>
-              <th onClick={sorting()} scope="col">Durum</th>
-              <th scope="col">Aksiyonlar</th>
+              <th scope="col">Durum</th>
+              <th scope="col">İşlemler</th>
             </tr>
           </thead>
-          <tbody>{this.renderBody(this.state.sayi)}</tbody>
+          <tbody>{this.renderBody(this.state.sayi,this.state.children)}</tbody>
         </table>
       </>
     );
   };
 
+  setItems = (items) => {
+    this.setState({ items });
+  };
+
   // ##############
-
-
+  /* Sorting Function */
+  sorting = (col) => {
+    if (this.order === "ASC") {
+      const sorted = [...this.state.items].sort((a, b) =>
+        a[col] > b[col] ? 1 : -1
+      );
+      this.setState({ order: "DESC" });
+      this.setItems(sorted);
+      console.log(this.state.order);
+      console.log(col);
+    }
+    if (this.order === "DESC") {
+      const sorted = [...this.state.items].sort((a, b) =>
+        a[col] > b[col] ? -1 : 1
+      );
+      this.setState({ order: "ASC" });
+      this.setItems(sorted);
+      console.log(this.state.order);
+      console.log(col);
+    }
+  };
 
   // ##############
 
