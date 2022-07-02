@@ -9,7 +9,7 @@ export function DataGrid() {
   const [todo, setTodo] = useState(null);
 
   const [currentPage, setCurrentPage] = useState(); //aynısı
-  const [pageSize, setPageSize] = useState(25); //employessPerpage
+  const [pageSize, setPageSize] = useState(25); // sayfada gösterilen product sayısı belirleniyor.
 
   const [order, setOrder] = useState("ASC");
 
@@ -41,11 +41,11 @@ export function DataGrid() {
 
   function RenderBaslik(props) {
     return (
-      <tr>
-        <th scope="row">{props.item.id}</th>
-        <td>{props.item.title}</td>
-        <td>{props.item.completed ? "Tamamlandı" : "Yapılacak"}</td>
-        <td>
+      <tr className="container">
+        <th scope="row"  className="col">{props.item.id}</th>
+        <td className="col-md-8">{props.item.title}</td>
+        <td className="col-md-2">{props.item.completed ? "Tamamlandı" : "Yapılacak"}</td>
+        <td className="col-md-2">
           <Button
             className="btn btn-xs btn-danger"
             onClick={() => onRemove(props.item.id)}
@@ -68,9 +68,9 @@ export function DataGrid() {
       <React.Fragment>
         {currentSize
           // .sort((a, b) => b.id - a.id)
-          .map((item, i, sayi) => {
+          .map((item, i) => {
             return (
-              <RenderBaslik key={i} item={item} sayi={sayi}></RenderBaslik>
+              <RenderBaslik key={i} item={item} ></RenderBaslik>
             );
           })}
       </React.Fragment>
@@ -84,33 +84,34 @@ export function DataGrid() {
           Ekle
         </Button>
 
-        <Pagination pages={totalPagesNum} setCurrentPage={setCurrentPage} />
+        <Pagination pages={totalPagesNum} setCurrentPage={setCurrentPage}  setPageSize={setPageSize}/>
 
-        <table className="table table-striped headTable">
+        <table className="table table-striped headTable row">
           <thead>
             <tr>
-              <th
-                onClick={() => sortingID([currentSize, items].id)}
+              <th className="col-md-1"
+                onClick={() => sortingID([currentSize].id)}
                 scope="col"
               >
                 #
               </th>
-              <th
-                onClick={() => sortingTitle([currentSize, items].title)}
+              <th className="col-md-8"
+                onClick={() => sortingTitle([currentSize].title)}
                 scope="col"
               >
                 Başlık
               </th>
-              <th
-                onClick={() => sortingCompleted([currentSize, items].completed)}
+              <th className="col-md-2"
+                onClick={() => sortingCompleted([currentSize].completed)}
                 scope="col"
               >
                 Durum
               </th>
-              <th scope="col">Aksiyonlar</th>
+              <th className="col"
+              scope="col">Aksiyonlar</th>
             </tr>
           </thead>
-          <tbody>{renderBody(200)}</tbody>
+          <tbody>{renderBody()}</tbody>
         </table>
       </>
     );
@@ -122,7 +123,7 @@ export function DataGrid() {
 
   const sortingID = (col) => {
     if (order === "ASC") {
-      const sorted = [...items, currentSize]
+      const sorted = [...items]
         .slice(currentSize, items.length)
         .sort((a, b) => (a.id < b.id ? -1 : 1));
 
@@ -130,7 +131,7 @@ export function DataGrid() {
       setItems(sorted);
       setPageSize(pageSize );
     } else {
-      const sorted = [...items, currentSize]
+      const sorted = [...items]
         .slice(currentSize, items.length)
         .sort((a, b) => (a.id > b.id ? -1 : 1));
 
@@ -142,14 +143,14 @@ export function DataGrid() {
 
   const sortingTitle = (col) => {
     if (order === "ASC") {
-      const sorted = [...items, currentSize]
+      const sorted = [...items]
         .slice(currentSize, items.length)
         .sort((a, b) => (a.title < b.title ? -1 : 1));
       setOrder("DESC");
       setItems(sorted);
       setPageSize(pageSize);
     } else {
-      const sorted = [...items, currentSize]
+      const sorted = [...items]
         .slice(currentSize, items.length)
         .sort((a, b) => (a.title > b.title ? -1 : 1));
       setOrder("ASC");
@@ -160,14 +161,14 @@ export function DataGrid() {
 
   const sortingCompleted = (col) => {
     if (order === "ASC") {
-      const sorted = [...items, currentSize]
+      const sorted = [...items]
         .slice(currentSize, items.length)
         .sort((a, b) => (a.completed < b.completed ? -1 : 1));
       setOrder("DESC");
       setItems(sorted);
       setPageSize(pageSize);
     } else {
-      const sorted = [...items, currentSize]
+      const sorted = [...items]
         .slice(currentSize, items.length)
         .sort((a, b) => (a.completed > b.completed ? -1 : 1));
       setOrder("ASC");

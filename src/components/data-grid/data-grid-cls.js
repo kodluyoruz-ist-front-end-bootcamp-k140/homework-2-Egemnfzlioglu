@@ -148,7 +148,7 @@ export class DataGridClsComponent extends React.Component {
       console.log(this.state.order);
       console.log(col);
     }
-    if (this.order === "DESC") {
+    else {
       const sorted = [...this.state.items].sort((a, b) =>
         a[col] > b[col] ? -1 : 1
       );

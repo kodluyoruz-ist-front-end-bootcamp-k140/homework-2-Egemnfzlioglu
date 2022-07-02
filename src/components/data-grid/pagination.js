@@ -28,7 +28,7 @@ const Pagination = ({ pages, setCurrentPage }) => {
         style={{ display: "flex", justifyContent: "space-between" }}
       >
         <div className="hint-text">
-          Showing <b>1</b> out of <b>25</b> entries
+          {currentButton} / {pages}
         </div>
 
         <ul className="pagination ">
