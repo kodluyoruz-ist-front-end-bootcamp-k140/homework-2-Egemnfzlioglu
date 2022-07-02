@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
 
+
 const Pagination = ({ pages, setCurrentPage }) => {
-  const numOfPages = [];
+    const numOfPages = [];
+  
 
   for (let i = 0; i < pages; i++) {
     numOfPages.push(i+1);

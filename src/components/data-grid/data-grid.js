@@ -8,8 +8,8 @@ export function DataGrid() {
   const [loading, setLoading] = useState(false);
   const [todo, setTodo] = useState(null);
 
-  const [currentPage, setCurrentPage] = useState(1); //aynısı
-  const [pageSize,setPageSize] = useState(25||50||75||100); //employessPerpage
+  const [currentPage, setCurrentPage] = useState(); //aynısı
+  const [pageSize, setPageSize] = useState(25); //employessPerpage
 
   const [order, setOrder] = useState("ASC");
 
@@ -22,7 +22,7 @@ export function DataGrid() {
   const PageFirstSize = pageLastSize - pageSize;
   const currentSize = items.slice(PageFirstSize, pageLastSize);
   const totalPagesNum = Math.ceil(items.length / pageSize);
-
+  //data
   const loadData = () => {
     setLoading(true);
     fetch("https://jsonplaceholder.typicode.com/todos")
@@ -37,7 +37,7 @@ export function DataGrid() {
       });
   };
 
-  // ###
+  // ### kendi ekledim ###
 
   function RenderBaslik(props) {
     return (
@@ -66,91 +66,45 @@ export function DataGrid() {
   const renderBody = (e) => {
     return (
       <React.Fragment>
-        {
-          currentSize
-            // .sort((a, b) => b.id - a.id)
-            .map((item, i, sayi) => {
-              return (
-                <RenderBaslik key={i} item={item} sayi={sayi}></RenderBaslik>
-              );
-            })
-          // istediğin kadar ekrana "item" getirebilirsin
-          // .slice(0, e === 0 ? currentSize.length : e)
-        }
+        {currentSize
+          // .sort((a, b) => b.id - a.id)
+          .map((item, i, sayi) => {
+            return (
+              <RenderBaslik key={i} item={item} sayi={sayi}></RenderBaslik>
+            );
+          })}
       </React.Fragment>
     );
   };
 
   const renderTable = () => {
-    // let HOPP = " HOOOPP !!! Hemşehrim Nereye gidiyorsun?";
     return (
       <>
-        {/* 
-    //##############################################################################################//
-    //#################################### DENEMELER BASLANGICI#####################################//
-    //##############################################################################################// 
-      */}
-
-        {/* <div>
-          <ul>
-            <br />
-            <li>
-              {" "}
-              Başlıkların Üstüne Tıklayarak Ürünleri Ters Döndürebilirsiniz.
-            </li>
-            <li>
-              {" "}
-              İstediğiniz Miktarda Ürünü{" "}
-              <strong>"Listelenmeni İstediğiniz Miktar"</strong> Kısmında
-              Görebilirsiniz.
-            </li>
-            <li>Eksi Değer ve Harf Giremezsiniz.</li>
-          </ul>
-        </div> */}
-
-        {/* splice metodunun inputu
-        <label className="mx-5 text-success ">
-          Listelenmesini İstediğin Miktar :
-          <input
-            type="number"
-            className="m-2"
-            onChange={(e) => {
-              setSayi(Number(e.currentTarget.value));
-            }}
-            value={
-              sayi < 0 || sayi > items.length ? <h1>{alert(HOPP)}</h1> : sayi
-            }
-          />
-        </label> 
-       
-        ### 
-        <h4 style={{ display: "flex", justifyContent: "center" }}>
-          {sayi ? sayi : items.length} ürününü listelemek istiyorum.
-        </h4>
-         ###*/}
-
-        {/* 
-          //##############################################################################################//
-          //####################################### DENEMELER SONU #######################################//
-          //##############################################################################################//
-        */}
-
         <Button className="btn btn-primary btn-xs m-4" onClick={onAdd}>
           Ekle
         </Button>
 
-        <Pagination pages={totalPagesNum} setCurrentPage={setCurrentPage}  />
+        <Pagination pages={totalPagesNum} setCurrentPage={setCurrentPage} />
 
         <table className="table table-striped headTable">
           <thead>
             <tr>
-              <th onClick={() => sortingID([...currentSize].id)} scope="col">
+              <th
+                onClick={() => sortingID([currentSize, items].id)}
+                scope="col"
+              >
                 #
               </th>
-              <th onClick={() => sortingTitle([...currentSize].title)} scope="col">
+              <th
+                onClick={() => sortingTitle([currentSize, items].title)}
+                scope="col"
+              >
                 Başlık
               </th>
-              <th onClick={() => sortingCompleted([...currentSize].completed)} scope="col">
+              <th
+                onClick={() => sortingCompleted([currentSize, items].completed)}
+                scope="col"
+              >
                 Durum
               </th>
               <th scope="col">Aksiyonlar</th>
@@ -168,65 +122,68 @@ export function DataGrid() {
 
   const sortingID = (col) => {
     if (order === "ASC") {
-      const sorted = [...currentSize].sort((a, b) => (a.id < b.id ? -1 : 1));
+      const sorted = [...items, currentSize]
+        .slice(currentSize, items.length)
+        .sort((a, b) => (a.id < b.id ? -1 : 1));
 
       setOrder("DESC");
       setItems(sorted);
-      setPageSize(200);
+      setPageSize(pageSize );
     } else {
-      const sorted = [...currentSize].sort((a, b) => (a.id > b.id ? -1 : 1));
+      const sorted = [...items, currentSize]
+        .slice(currentSize, items.length)
+        .sort((a, b) => (a.id > b.id ? -1 : 1));
 
       setOrder("ASC");
       setItems(sorted);
-      setPageSize(200);
-
+      setPageSize(pageSize);
     }
   };
 
   const sortingTitle = (col) => {
     if (order === "ASC") {
-      const sorted = currentSize.sort((a, b) =>
-        a.title < b.title ? -1 : 1
-      );
+      const sorted = [...items, currentSize]
+        .slice(currentSize, items.length)
+        .sort((a, b) => (a.title < b.title ? -1 : 1));
       setOrder("DESC");
       setItems(sorted);
+      setPageSize(pageSize);
     } else {
-      const sorted = currentSize.sort((a, b) =>
-        a.title > b.title ? -1 : 1
-      );
+      const sorted = [...items, currentSize]
+        .slice(currentSize, items.length)
+        .sort((a, b) => (a.title > b.title ? -1 : 1));
       setOrder("ASC");
       setItems(sorted);
+      setPageSize(pageSize);
     }
   };
 
   const sortingCompleted = (col) => {
     if (order === "ASC") {
-      const sorted = currentSize.sort((a, b) =>
-        a.completed < b.completed ? -1 : 1
-      );
+      const sorted = [...items, currentSize]
+        .slice(currentSize, items.length)
+        .sort((a, b) => (a.completed < b.completed ? -1 : 1));
       setOrder("DESC");
       setItems(sorted);
+      setPageSize(pageSize);
     } else {
-      const sorted = currentSize.sort((a, b) =>
-        a.completed > b.completed ? -1 : 1
-      );
+      const sorted = [...items, currentSize]
+        .slice(currentSize, items.length)
+        .sort((a, b) => (a.completed > b.completed ? -1 : 1));
       setOrder("ASC");
       setItems(sorted);
+      setPageSize(pageSize);
     }
   };
 
   //##############################################################################################//
-  //######################################## SORTİNG SONU ########################################//
-  //##############################################################################################//
-
-  //##############################################################################################//<<<<<<<<<<<<<<<
-  //###################################### PAGİNATİON START ######################################//
+  //######################################## SORTİNG END ########################################//
   //##############################################################################################//
 
   const saveChanges = () => {
     // insert
     if (todo && todo.id === -1) {
-      todo.id = Math.max({...currentSize}.map((item) => item.id)) + 1;
+      todo.id = Math.max(...items.map((item) => item.id)) + 1;
       setItems((items) => {
         items.push(todo);
         return [...items];
