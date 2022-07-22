@@ -28,3 +28,7 @@ export class TitleClassComponent extends React.Component {
     return component === "h1" ? this.renderH1() : this.renderDivComponent()
   }
 }
+
+
+
+

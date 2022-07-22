@@ -33,3 +33,9 @@
 .tabs {
   margin: 20px 0px;
 }
+table>thead>tr>th {
+  margin: 0 20px;
+  cursor: pointer;
+}
+
+
